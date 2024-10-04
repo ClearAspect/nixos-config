@@ -18,13 +18,15 @@ with pkgs; [
   zsh-autosuggestions
   zsh-syntax-highlighting
 
+  # Fonts
+  cozette
+
   lua
   python3
   # llvmPackages_latest.llvm
   cmake
   jdk
   maven
-  R
   zigpkgs.master
 
   # Cloud-related tools and SDKs

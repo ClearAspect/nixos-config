@@ -1,6 +1,4 @@
-_:
-
-[
+_: [
   # Browsers
   "firefox"
 
@@ -18,4 +16,5 @@ _:
   # Development Tools
   "homebrew/cask/docker"
   "rstudio"
+  "r"
 ]
