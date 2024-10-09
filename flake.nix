@@ -52,7 +52,7 @@
     in {
       default = with pkgs;
         mkShell {
-          nativeBuildInputs = with pkgs; [zsh git];
+          nativeBuildInputs = with pkgs; [bash git];
           shellHook = with pkgs; ''
             export EDITOR=vim
           '';
@@ -61,7 +61,7 @@
     mkApp = scriptName: system: {
       type = "app";
       program = "${(nixpkgs.legacyPackages.${system}.writeScriptBin scriptName ''
-        #!/usr/bin/env zsh
+        #!/usr/bin/env bash
         PATH=${nixpkgs.legacyPackages.${system}.git}/bin:$PATH
         echo "Running ${scriptName} for ${system}"
         exec ${self}/apps/${system}/${scriptName}

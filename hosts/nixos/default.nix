@@ -1,8 +1,12 @@
-{ config, inputs, pkgs, ... }:
-
-let user = "roanm";
-    keys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOk8iAnIaa1deoc7jw8YACPNVka1ZFJxhnU4G74TmS+p" ]; in
 {
+  config,
+  inputs,
+  pkgs,
+  ...
+}: let
+  user = "roanm";
+  keys = ["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOk8iAnIaa1deoc7jw8YACPNVka1ZFJxhnU4G74TmS+p"];
+in {
   imports = [
     ../../modules/nixos/disk-config.nix
     ../../modules/shared
@@ -17,11 +21,11 @@ let user = "roanm";
       };
       efi.canTouchEfiVariables = true;
     };
-    initrd.availableKernelModules = [ "xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod" ];
+    initrd.availableKernelModules = ["xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod"];
     # Uncomment for AMD GPU
     # initrd.kernelModules = [ "amdgpu" ];
     kernelPackages = pkgs.linuxPackages_latest;
-    kernelModules = [ "uinput" ];
+    kernelModules = ["uinput"];
   };
 
   # Set your time zone.
@@ -38,19 +42,19 @@ let user = "roanm";
 
   # Turn on flag for proprietary software
   nix = {
-    nixPath = [ "nixos-config=/home/${user}/.local/share/src/nixos-config:/etc/nixos" ];
+    nixPath = ["nixos-config=/home/${user}/.local/share/src/nixos-config:/etc/nixos"];
     settings = {
-      allowed-users = [ "${user}" ];
-      trusted-users = [ "@admin" "${user}" ];
-      substituters = [ "https://nix-community.cachix.org" "https://cache.nixos.org" ];
-      trusted-public-keys = [ "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=" ];
+      allowed-users = ["${user}"];
+      trusted-users = ["@admin" "${user}"];
+      substituters = ["https://nix-community.cachix.org" "https://cache.nixos.org"];
+      trusted-public-keys = ["cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="];
     };
 
     package = pkgs.nix;
     extraOptions = ''
       experimental-features = nix-command flakes
     '';
-   };
+  };
 
   # Manages keys and such
   programs = {
@@ -60,10 +64,10 @@ let user = "roanm";
     dconf.enable = true;
 
     # My shell
-    zsh.enable = true;
+    fish.enable = true;
   };
 
-  services = { 
+  services = {
     xserver = {
       enable = true;
 
@@ -100,7 +104,6 @@ let user = "roanm";
 
       # Better support for general peripherals
       libinput.enable = true;
-
     };
 
     # Let's be able to SSH into this machine
@@ -209,21 +212,28 @@ let user = "roanm";
         log-level = "info";
 
         wintypes = {
-          normal = { fade = true; shadow = false; };
-          tooltip = { fade = true; shadow = false; opacity = 0.75; focus = true; full-shadow = false; };
-          dock = { shadow = false; };
-          dnd = { shadow = false; };
-          popup_menu = { opacity = 1.0; };
-          dropdown_menu = { opacity = 1.0; };
+          normal = {
+            fade = true;
+            shadow = false;
+          };
+          tooltip = {
+            fade = true;
+            shadow = false;
+            opacity = 0.75;
+            focus = true;
+            full-shadow = false;
+          };
+          dock = {shadow = false;};
+          dnd = {shadow = false;};
+          popup_menu = {opacity = 1.0;};
+          dropdown_menu = {opacity = 1.0;};
         };
       };
     };
 
     gvfs.enable = true; # Mount, trash, and other functionalities
     tumbler.enable = true; # Thumbnail support for images
-
   };
-
 
   # Enable sound
   # sound.enable = true;
@@ -241,7 +251,6 @@ let user = "roanm";
     ledger.enable = true;
   };
 
-
   # Add docker daemon
   virtualisation = {
     docker = {
@@ -258,7 +267,7 @@ let user = "roanm";
         "wheel" # Enable ‘sudo’ for the user.
         "docker"
       ];
-      shell = pkgs.zsh;
+      shell = pkgs.fish;
       openssh.authorizedKeys.keys = keys;
     };
 
@@ -270,15 +279,17 @@ let user = "roanm";
   # Don't require password for users in `wheel` group for these commands
   security.sudo = {
     enable = true;
-    extraRules = [{
-      commands = [
-       {
-         command = "${pkgs.systemd}/bin/reboot";
-         options = [ "NOPASSWD" ];
-        }
-      ];
-      groups = [ "wheel" ];
-    }];
+    extraRules = [
+      {
+        commands = [
+          {
+            command = "${pkgs.systemd}/bin/reboot";
+            options = ["NOPASSWD"];
+          }
+        ];
+        groups = ["wheel"];
+      }
+    ];
   };
 
   fonts.packages = with pkgs; [
@@ -295,5 +306,4 @@ let user = "roanm";
   ];
 
   system.stateVersion = "21.05"; # Don't change this
-
 }

@@ -5,6 +5,7 @@ with pkgs; [
   btop
   coreutils
   fastfetch
+  fish
   kitty
   lazygit
   lsd
@@ -15,8 +16,8 @@ with pkgs; [
   yazi
   wget
   zip
-  zsh-autosuggestions
-  zsh-syntax-highlighting
+  # zsh-autosuggestions
+  # zsh-syntax-highlighting
 
   # Fonts
   cozette

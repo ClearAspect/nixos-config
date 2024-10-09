@@ -19,7 +19,7 @@ in {
     name = "${user}";
     home = "/Users/${user}";
     isHidden = false;
-    shell = pkgs.zsh;
+    shell = pkgs.fish;
   };
 
   homebrew = {
@@ -72,13 +72,6 @@ in {
           "${config.home.homeDirectory}/.local/bin"
           "${config.home.homeDirectory}/.local/share/nvim/mason/bin"
         ];
-
-        shellAliases = {
-          ls = "lsd --color=auto";
-          grep = "grep --color=auto";
-          vi = "nvim";
-          vim = "nvim";
-        };
       };
       programs = {} // import ../shared/home-manager.nix {inherit config pkgs lib;};
 

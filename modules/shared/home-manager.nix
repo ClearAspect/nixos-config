@@ -10,30 +10,60 @@
 in {
   # Shared shell configuration
 
-  zsh = {
+  fish = {
     enable = true;
+    shellAliases = {
+      ls = "lsd --color=auto";
+      grep = "grep --color=auto";
+      vi = "nvim";
+      vim = "nvim";
+    };
+    plugins = [
+      {
+        name = "nix-env";
+        src = pkgs.fetchFromGitHub {
+          owner = "lilyball";
+          repo = "nix-env.fish";
+          rev = "7b65bd228429e852c8fdfa07601159130a818cfa";
+          sha256 = "sha256-RG/0rfhgq6aEKNZ0XwIqOaZ6K5S4+/Y5EEMnIdtfPhk=";
+        };
+      }
+      # {
+      #   name = "catppuccin";
+      #   src = pkgs.fetchFromGitHub {
+      #     owner = "catppuccin";
+      #     repo = "fish";
+      #     rev = "cc8e4d8fffbdaab07b3979131030b234596f18da";
+      #     sha256 = "sha256-udiU2TOh0lYL7K7ylbt+BGlSDgCjMpy75vQ98C1kFcc=";
+      #   };
+      # }
+    ];
+  };
+
+  zsh = {
+    enable = false;
     autocd = false;
     enableCompletion = true;
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
     completionInit = "
-		if type brew &>/dev/null
-		then
-			fpath+=\"$(brew --prefix)/share/zsh/site-functions\"
-			autoload -Uz compinit
-			compinit
-		fi
+  if type brew &>/dev/null
+  then
+  fpath+=\"$(brew --prefix)/share/zsh/site-functions\"
+  autoload -Uz compinit
+  compinit
+  fi
 
-		zstyle ':completion:*' completer _list _expand _complete _ignored _correct _approximate
-		zstyle ':completion:*' format '%F{black}-- %d --%f'
-		zstyle ':completion:*' group-name ''
-		zstyle ':completion:*' list-colors ''
-		zstyle ':completion:*' menu select=2
-		zstyle :compinstall filename '/home/roanm/.zshrc'
+  zstyle ':completion:*' completer _list _expand _complete _ignored _correct _approximate
+  zstyle ':completion:*' format '%F{black}-- %d --%f'
+  zstyle ':completion:*' group-name ''
+  zstyle ':completion:*' list-colors ''
+  zstyle ':completion:*' menu select=2
+  zstyle :compinstall filename '/home/roanm/.zshrc'
 
-		autoload -Uz compinit
-		compinit
-	";
+  autoload -Uz compinit
+  compinit
+  ";
     initExtraFirst = ''
       if [[ -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]]; then
         . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
