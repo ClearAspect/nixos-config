@@ -16,6 +16,7 @@ with pkgs; [
   yazi
   wget
   zip
+  zoxide
   # zsh-autosuggestions
   # zsh-syntax-highlighting
 

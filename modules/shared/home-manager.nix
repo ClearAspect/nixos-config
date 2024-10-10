@@ -13,6 +13,7 @@ in {
   fish = {
     enable = true;
     shellAliases = {
+      cd = "z ";
       ls = "lsd --color=auto";
       grep = "grep --color=auto";
       vi = "nvim";
@@ -38,6 +39,11 @@ in {
       #   };
       # }
     ];
+  };
+
+  zoxide = {
+    enable = true;
+    enableFishIntegration = true;
   };
 
   zsh = {
