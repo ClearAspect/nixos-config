@@ -37,6 +37,7 @@ in {
   };
 
   system.checks.verifyNixPath = false;
+  security.pam.enableSudoTouchIdAuth = true;
 
   environment.systemPackages = with pkgs;
     [

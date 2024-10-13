@@ -43,8 +43,6 @@ in {
     # };
   };
 
-  security.pam.enableSudoTouchIdAuth = true;
-
   # Enable home-manager
   home-manager = {
     useGlobalPkgs = true;

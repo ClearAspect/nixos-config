@@ -11,11 +11,12 @@ _: {
           partitions = {
             ESP = {
               type = "EF00";
-              size = "100M";
+              size = "512M";
               content = {
                 type = "filesystem";
                 format = "vfat";
                 mountpoint = "/boot";
+                mountOptions = ["fmask=0077" "dmask=0077"];
               };
             };
             root = {
@@ -24,6 +25,14 @@ _: {
                 type = "filesystem";
                 format = "ext4";
                 mountpoint = "/";
+              };
+            };
+            plainSwap = {
+              size = "8G";
+              content = {
+                type = "swap";
+                discardPolicy = "both";
+                resumeDevice = true;
               };
             };
           };
