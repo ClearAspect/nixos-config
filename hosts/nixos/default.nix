@@ -3,6 +3,7 @@
   lib,
   inputs,
   pkgs,
+  libs,
   ...
 }: let
   user = "roanm";
@@ -18,7 +19,7 @@ in {
     loader = {
       # systemd-boot = {
       #   enable = true;
-      #   configurationLimit = 42;
+      #   configurationLimit = 4;
       # };
       grub = {
         enable = true;
@@ -31,8 +32,45 @@ in {
     initrd.availableKernelModules = ["xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod"];
     # Uncomment for AMD GPU
     # initrd.kernelModules = [ "amdgpu" ];
+
+    initrd.kernelModules = ["nvidia" "nvidia_modeset" "nvidia_uvm" "nvidia_drm"];
+
     kernelPackages = pkgs.linuxPackages_latest;
     kernelModules = ["uinput"];
+    kernelParams = ["nvidia_drm.modeset=1" "nvidia.NVreg_PreserveVideoMemoryAllocations=1" "nvidia.NVreg_EnableGpuFirmware=0"];
+  };
+
+  # Setup Nvidia Drivers
+  hardware.graphics.enable = true; # OpenGL
+  services.xserver = {
+    enable = true;
+
+    videoDrivers = ["nvidia"];
+
+    # Uncomment for Nvidia GPU
+    # This helps fix tearing of windows for Nvidia cards
+    # screenSection = ''
+    #   Option       "metamodes" "nvidia-auto-select +0+0 {ForceFullCompositionPipeline=On}"
+    #   Option       "AllowIndirectGLXProtocol" "off"
+    #   Option       "TripleBuffer" "on"
+    # '';
+
+    # Turn Caps Lock into Ctrl
+    xkb.layout = "us";
+    # xkbOptions = "ctrl:nocaps";
+  };
+  hardware.nvidia = {
+    modesetting.enable = true;
+    powerManagement.enable = false;
+    powerManagement.finegrained = false;
+    # forceFullCompositionPipeline = true;
+    open = false;
+    nvidiaSettings = true;
+    package = config.boot.kernelPackages.nvidiaPackages.stable;
+    # prime = {
+    #   # sync.enable = true;
+    #   nvidiaBusId = "PCI:1:0:0";
+    # };
   };
 
   # Set your time zone.
@@ -42,9 +80,11 @@ in {
   # Per-interface useDHCP will be mandatory in the future, so this generated config
   # replicates the default behaviour.
   networking = {
-    hostName = "%HOST%"; # Define your hostname.
-    useDHCP = lib.mkDefault false;
-    interfaces."%INTERFACE%".useDHCP = true;
+    hostName = "nixos"; # Define your hostname.
+    networkmanager.enable = true; # Easiest to use and most distros use this by default.
+    # useDHCP = lib.mkDefault true;
+    useDHCP = lib.mkDefault true;
+    # interfaces."%INTERFACE%".useDHCP = true;
   };
 
   # Turn on flag for proprietary software
@@ -72,45 +112,26 @@ in {
 
     # My shell
     fish.enable = true;
+
+    hyprland = {
+      enable = true;
+      xwayland.enable = true;
+    };
   };
 
   services = {
-    xserver = {
+    # Better support for general peripherals
+    libinput.enable = true;
+
+    displayManager.sddm = {
       enable = true;
+    };
 
-      # Uncomment these for AMD or Nvidia GPU
-      # boot.initrd.kernelModules = [ "amdgpu" ];
-      # videoDrivers = [ "amdgpu" ];
-      videoDrivers = ["nvidia"];
-
-      # Uncomment for Nvidia GPU
-      # This helps fix tearing of windows for Nvidia cards
-      screenSection = ''
-        Option       "metamodes" "nvidia-auto-select +0+0 {ForceFullCompositionPipeline=On}"
-        Option       "AllowIndirectGLXProtocol" "off"
-        Option       "TripleBuffer" "on"
-      '';
-
-      displayManager = {
-        defaultSession = "none+bspwm";
-        lightdm = {
-          enable = true;
-          greeters.slick.enable = true;
-          background = ../../modules/nixos/config/login-wallpaper.png;
-        };
-      };
-
-      # Tiling window manager
-      windowManager.bspwm = {
-        enable = true;
-      };
-
-      # Turn Caps Lock into Ctrl
-      layout = "us";
-      # xkbOptions = "ctrl:nocaps";
-
-      # Better support for general peripherals
-      libinput.enable = true;
+    pipewire = {
+      enable = true;
+      alsa.enable = true;
+      pulse.enable = true;
+      jack.enable = true;
     };
 
     # Let's be able to SSH into this machine
@@ -138,137 +159,20 @@ in {
     printing.enable = true;
     printing.drivers = [pkgs.brlaser]; # Brother printer driver
 
-    # Picom, my window compositor with fancy effects
-    #
-    # Notes on writing exclude rules:
-    #
-    #   class_g looks up index 1 in WM_CLASS value for an application
-    #   class_i looks up index 0
-    #
-    #   To find the value for a specific application, use `xprop` at the
-    #   terminal and then click on a window of the application in question
-    #
-    # picom = {
-    # enable = true;
-    # settings = {
-    #   animations = true;
-    #   animation-stiffness = 300.0;
-    #   animation-dampening = 35.0;
-    #   animation-clamping = false;
-    #   animation-mass = 1;
-    #   animation-for-workspace-switch-in = "auto";
-    #   animation-for-workspace-switch-out = "auto";
-    #   animation-for-open-window = "slide-down";
-    #   animation-for-menu-window = "none";
-    #   animation-for-transient-window = "slide-down";
-    #   corner-radius = 12;
-    #   rounded-corners-exclude = [
-    #     "class_i = 'polybar'"
-    #     "class_g = 'i3lock'"
-    #   ];
-    #   round-borders = 3;
-    #   round-borders-exclude = [];
-    #   round-borders-rule = [];
-    #   shadow = true;
-    #   shadow-radius = 8;
-    #   shadow-opacity = 0.4;
-    #   shadow-offset-x = -8;
-    #   shadow-offset-y = -8;
-    #   fading = false;
-    #   inactive-opacity = 0.8;
-    #   frame-opacity = 0.7;
-    #   inactive-opacity-override = false;
-    #   active-opacity = 1.0;
-    #   focus-exclude = [
-    #   ];
-
-    #   opacity-rule = [
-    #     "100:class_g = 'i3lock'"
-    #     "60:class_g = 'Dunst'"
-    #     "100:class_g = 'Alacritty' && focused"
-    #     "90:class_g = 'Alacritty' && !focused"
-    #   ];
-
-    #   blur-kern = "3x3box";
-    #   blur = {
-    #     method = "kernel";
-    #     strength = 8;
-    #     background = false;
-    #     background-frame = false;
-    #     background-fixed = false;
-    #     kern = "3x3box";
-    #   };
-
-    #   shadow-exclude = [
-    #     "class_g = 'Dunst'"
-    #   ];
-
-    #   blur-background-exclude = [
-    #     "class_g = 'Dunst'"
-    #   ];
-
-    #   backend = "glx";
-    #   vsync = false;
-    #   mark-wmwin-focused = true;
-    #   mark-ovredir-focused = true;
-    #   detect-rounded-corners = true;
-    #   detect-client-opacity = false;
-    #   detect-transient = true;
-    #   detect-client-leader = true;
-    #   use-damage = true;
-    #   log-level = "info";
-
-    #   wintypes = {
-    #     normal = {
-    #       fade = true;
-    #       shadow = false;
-    #     };
-    #     tooltip = {
-    #       fade = true;
-    #       shadow = false;
-    #       opacity = 0.75;
-    #       focus = true;
-    #       full-shadow = false;
-    #     };
-    #     dock = {shadow = false;};
-    #     dnd = {shadow = false;};
-    #     popup_menu = {opacity = 1.0;};
-    #     dropdown_menu = {opacity = 1.0;};
-    #   };
-    # };
-    # };
-
     gvfs.enable = true; # Mount, trash, and other functionalities
     tumbler.enable = true; # Thumbnail support for images
   };
 
-  # Enable sound
-  # sound.enable = true;
-
-  # Video support
+  # Audio support
   hardware = {
-    opengl.enable = true;
-    pulseaudio.enable = true;
-    hardware.nvidia.modesetting.enable = true;
-
-    # Enable Xbox support
-    # hardware.xone.enable = true;
-
-    # Crypto wallet support
-    # ledger.enable = true;
-  };
-
-  # Add docker daemon
-  virtualisation = {
-    docker = {
-      enable = true;
-      logDriver = "json-file";
-    };
+    pulseaudio.enable = false;
   };
 
   # It's me, it's you, it's everyone
   users.users = {
     ${user} = {
+      home = "/home/roanm";
+      createHome = true;
       isNormalUser = true;
       extraGroups = [
         "wheel" # Enable ‘sudo’ for the user.
@@ -304,6 +208,14 @@ in {
   ];
 
   environment.systemPackages = with pkgs; [
+    kitty
+    waybar
+    hyprland
+    xdg-desktop-portal-hyprland
+    lshw
+    vim
+    coreutils
+    pciutils
   ];
 
   system.stateVersion = "21.05"; # Don't change this

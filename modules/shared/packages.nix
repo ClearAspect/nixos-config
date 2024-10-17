@@ -7,6 +7,7 @@ with pkgs; [
   fastfetch
   fish
   kitty
+  git-credential-manager
   lazygit
   lsd
   neovim
@@ -26,14 +27,11 @@ with pkgs; [
   lua
   python3
   # llvmPackages_latest.llvm
+  cargo
   cmake
   jdk
   maven
   zigpkgs.master
-
-  # Cloud-related tools and SDKs
-  docker
-  docker-compose
 
   # Media-related packages
   font-awesome
@@ -44,6 +42,7 @@ with pkgs; [
   nodejs
 
   # Text and terminal utilities
+  pass
   coreutils
   btop
   fzf

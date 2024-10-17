@@ -29,15 +29,15 @@ in {
           sha256 = "sha256-RG/0rfhgq6aEKNZ0XwIqOaZ6K5S4+/Y5EEMnIdtfPhk=";
         };
       }
-      # {
-      #   name = "catppuccin";
-      #   src = pkgs.fetchFromGitHub {
-      #     owner = "catppuccin";
-      #     repo = "fish";
-      #     rev = "cc8e4d8fffbdaab07b3979131030b234596f18da";
-      #     sha256 = "sha256-udiU2TOh0lYL7K7ylbt+BGlSDgCjMpy75vQ98C1kFcc=";
-      #   };
-      # }
+      {
+        name = "catppuccin";
+        src = pkgs.fetchFromGitHub {
+          owner = "catppuccin";
+          repo = "fish";
+          rev = "cc8e4d8fffbdaab07b3979131030b234596f18da";
+          sha256 = "sha256-udiU2TOh0lYL7K7ylbt+BGlSDgCjMpy75vQ98C1kFcc=";
+        };
+      }
     ];
   };
 
@@ -114,33 +114,32 @@ in {
     # ignores = ["*.swp"];
     userName = name;
     userEmail = email;
-    lfs = {
-      enable = true;
-    };
+    lfs.enable = true;
+
     extraConfig = {
       init.defaultBranch = "master";
       core = {
         editor = "nvim";
         # autocrlf = "input";
       };
-      pull.rebase = true;
-      rebase.autoStash = true;
+      credential.credentialStore = "gpg";
+      credential.helper = "manager";
     };
   };
 
-  # ssh = {
-  #   enable = true;
-  #   includes = [
-  #     (
-  #       lib.mkIf pkgs.stdenv.hostPlatform.isLinux
-  #       "/home/${user}/.ssh/config_external"
-  #     )
-  #     (
-  #       lib.mkIf pkgs.stdenv.hostPlatform.isDarwin
-  #       "/Users/${user}/.ssh/config_external"
-  #     )
-  #   ];
-  # };
+  ssh = {
+    enable = true;
+    includes = [
+      (
+        lib.mkIf pkgs.stdenv.hostPlatform.isLinux
+        "/home/${user}/.ssh/config_external"
+      )
+      (
+        lib.mkIf pkgs.stdenv.hostPlatform.isDarwin
+        "/Users/${user}/.ssh/config_external"
+      )
+    ];
+  };
 
   tmux = {
     enable = true;

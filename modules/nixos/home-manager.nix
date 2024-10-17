@@ -8,21 +8,6 @@
   xdg_configHome = "/home/${user}/.config";
   shared-programs = import ../shared/home-manager.nix {inherit config pkgs lib;};
   shared-files = import ../shared/files.nix {inherit config pkgs;};
-  # polybar-user_modules = builtins.readFile (pkgs.substituteAll {
-  #   src = ./config/polybar/user_modules.ini;
-  #   packages = "${xdg_configHome}/polybar/bin/check-nixos-updates.sh";
-  #   searchpkgs = "${xdg_configHome}/polybar/bin/search-nixos-updates.sh";
-  #   launcher = "${xdg_configHome}/polybar/bin/launcher.sh";
-  #   powermenu = "${xdg_configHome}/rofi/bin/powermenu.sh";
-  #   calendar = "${xdg_configHome}/polybar/bin/popup-calendar.sh";
-  # });
-  # polybar-config = pkgs.substituteAll {
-  #   src = ./config/polybar/config.ini;
-  #   font0 = "DejaVu Sans:size=12;3";
-  # };
-  # polybar-modules = builtins.readFile ./config/polybar/modules.ini;
-  # polybar-bars = builtins.readFile ./config/polybar/bars.ini;
-  # polybar-colors = builtins.readFile ./config/polybar/colors.ini;
 in {
   home = {
     enableNixpkgsReleaseCheck = false;
@@ -33,27 +18,71 @@ in {
     stateVersion = "21.05";
   };
 
+  wayland.windowManager.hyprland = {
+    enable = true;
+    package = pkgs.hyprland;
+    xwayland.enable = true;
+
+    systemd.enable = true;
+
+    settings = {
+      monitor = [
+        "DP-1,3840x2160@144,0x0,1"
+        "HDMI-A-1,3840x2160@60,-3840x0,1"
+        "Unknown-1, disable"
+      ];
+
+      "$mainMod" = "SUPER";
+      "$terminal" = "kitty";
+      "$browser" = "firefox";
+
+      bind = [
+        "$mainMod, T, exec, $terminal"
+        "$mainMod, F, exec, $browser"
+        "$mainMod, C, killactive"
+
+        "$mainMod, 1, workspace, 1"
+        "$mainMod, 2, workspace, 2"
+        "$mainMod, 3, workspace, 3"
+        "$mainMod, 4, workspace, 4"
+        "$mainMod, 5, workspace, 5"
+        "$mainMod, 6, workspace, 6"
+        "$mainMod, 7, workspace, 7"
+        "$mainMod, 8, workspace, 8"
+        "$mainMod, 9, workspace, 9"
+        "$mainMod, 10, workspace, 10"
+      ];
+      # extraConfig = ''
+      #   env = XCURSOR_SIZE,24
+      #   env = HYPRCURSOR_SIZE,24
+      #   env = LIBVA_DRIVER_NAME,nvidia
+      #   env = XDG_SESSION_TYPE,wayland
+      #   env = GBM_BACKEND,nvidia-drm
+      #   env = __GLX_VENDOR_LIBRARY_NAME,nvida
+      #   env = __GL_GSYNC_ALLOWED
+      # '';
+    };
+  };
+
   # Use a dark theme
-  # gtk = {
-  #   enable = true;
-  #   iconTheme = {
-  #     name = "Adwaita-dark";
-  #     package = pkgs.gnome.adwaita-icon-theme;
-  #   };
-  #   theme = {
-  #     name = "Adwaita-dark";
-  #     package = pkgs.gnome.adwaita-icon-theme;
-  #   };
-  # };
+  gtk = {
+    enable = true;
+    cursorTheme = {
+      name = "Apple Cursor";
+      package = pkgs.apple-cursor;
+    };
+    iconTheme = {
+      name = "WhiteSur Icons";
+      package = pkgs.whitesur-icon-theme;
+    };
+    theme = {
+      name = "WhiteSur Theme";
+      package = pkgs.whitesur-gtk-theme;
+    };
+  };
 
   # Screen lock
   services = {
-    # screen-locker = {
-    #   enable = true;
-    #   inactiveInterval = 10;
-    #   lockCmd = "${pkgs.i3lock-fancy-rapid}/bin/i3lock-fancy-rapid 10 15";
-    # };
-
     # Auto mount devices
     # udiskie.enable = true;
 
