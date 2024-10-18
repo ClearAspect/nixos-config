@@ -26,38 +26,65 @@ in {
         device = "nodev";
         efiSupport = true;
         useOSProber = true;
+        configurationLimit = 4;
       };
       efi.canTouchEfiVariables = true;
     };
-    initrd.availableKernelModules = ["xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod"];
-    # Uncomment for AMD GPU
-    # initrd.kernelModules = [ "amdgpu" ];
-
-    initrd.kernelModules = ["nvidia" "nvidia_modeset" "nvidia_uvm" "nvidia_drm"];
+    initrd.availableKernelModules = [
+      "nvidia"
+      "nvidia_modeset"
+      "nvidia_uvm"
+      "nvidia_drm"
+      "xhci_pci"
+      "ahci"
+      "nvme"
+      "usbhid"
+      "usb_storage"
+      "sd_mod"
+    ];
+    initrd.kernelModules = [
+      "nvidia"
+      "nvidia_modeset"
+      "nvidia_uvm"
+      "nvidia_drm"
+    ];
 
     kernelPackages = pkgs.linuxPackages_latest;
     kernelModules = ["uinput"];
-    kernelParams = ["nvidia_drm.modeset=1" "nvidia.NVreg_PreserveVideoMemoryAllocations=1" "nvidia.NVreg_EnableGpuFirmware=0"];
+    kernelParams = [
+      "nvidia-drm.modeset=1"
+      "nvidia-drm.fbdev=1"
+      "nvidia.NVreg_PreserveVideoMemoryAllocations=1"
+      "nvidia.NVreg_EnableGpuFirmware=0"
+      "video=simpledrm:off"
+      "module_blacklist=simpledrm"
+    ];
   };
 
   # Setup Nvidia Drivers
   hardware.graphics.enable = true; # OpenGL
-  services.xserver = {
-    enable = true;
+  services = {
+    udev.packages = [config.boot.kernelPackages.nvidiaPackages.stable];
+    xserver = {
+      enable = true;
+      displayManager.gdm = {
+        enable = true;
+      };
 
-    videoDrivers = ["nvidia"];
+      videoDrivers = ["nvidia"];
 
-    # Uncomment for Nvidia GPU
-    # This helps fix tearing of windows for Nvidia cards
-    # screenSection = ''
-    #   Option       "metamodes" "nvidia-auto-select +0+0 {ForceFullCompositionPipeline=On}"
-    #   Option       "AllowIndirectGLXProtocol" "off"
-    #   Option       "TripleBuffer" "on"
-    # '';
+      # Uncomment for Nvidia GPU
+      # This helps fix tearing of windows for Nvidia cards
+      # screenSection = ''
+      #   Option       "metamodes" "nvidia-auto-select +0+0 {ForceFullCompositionPipeline=On}"
+      #   Option       "AllowIndirectGLXProtocol" "off"
+      #   Option       "TripleBuffer" "on"
+      # '';
 
-    # Turn Caps Lock into Ctrl
-    xkb.layout = "us";
-    # xkbOptions = "ctrl:nocaps";
+      # Turn Caps Lock into Ctrl
+      xkb.layout = "us";
+      # xkbOptions = "ctrl:nocaps";
+    };
   };
   hardware.nvidia = {
     modesetting.enable = true;
@@ -122,10 +149,6 @@ in {
   services = {
     # Better support for general peripherals
     libinput.enable = true;
-
-    displayManager.sddm = {
-      enable = true;
-    };
 
     pipewire = {
       enable = true;
